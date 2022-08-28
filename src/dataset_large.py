@@ -130,7 +130,7 @@ class ProtoPlanetaryDisks(Dataset):
         self.par_train = np.load('%s/param_arr_gridandfiller%s_train_all.npy' %
                                  (ppd_path, subset))
 
-        if image_norm = 'None':
+        if image_norm == 'None':
             self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%s_train_*.npy' %
                                                (ppd_path, subset)))
         else:
@@ -149,7 +149,7 @@ class ProtoPlanetaryDisks(Dataset):
                            'Rin', 'sd_exp', 'alpha', 'inc']
         self.par_test = np.load('%s/param_arr_gridandfiller%s_test.npy' %
                                 (ppd_path, subset))
-        if image_norm = 'None':
+        if image_norm == 'None':
             self.imgs_test = np.load('%s/img_array_gridandfiller_%s_test.npy' %
                                      (ppd_path, subset))
         else:
