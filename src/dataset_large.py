@@ -127,7 +127,7 @@ class ProtoPlanetaryDisks(Dataset):
         if subset != '':
             subset = '_%s' % (subset)
 
-        self.par_train = np.load('%s/param_arr_gridandfiller_%s_train_all.npy' %
+        self.par_train = np.load('%s/param_arr_gridandfiller%s_train_all.npy' %
                                  (ppd_path, subset))
 
         if image_norm == 'None':

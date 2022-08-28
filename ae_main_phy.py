@@ -219,9 +219,9 @@ def run_code():
                       scheduler=scheduler, print_every=100,
                       device=device)
     else:
-      trainer = Trainer(model, optimizer, args.batch_size, wandb,
-                      scheduler=scheduler, print_every=100,
-                      device=device)
+        from src.ae_training_phy import Trainer
+        trainer = Trainer(model, optimizer, args.batch_size, wandb,
+        scheduler=scheduler, print_every=100, device=device)
 
     if args.dry_run:
         print('******** DRY RUN ******** ')
