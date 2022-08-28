@@ -7,11 +7,11 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import torchvision
 from bisect import bisect
 from sklearn import preprocessing
-# from sklearn import preprocessing
 
 root = '/Users/jorgetil/Astro/PPD-AE'
 colab_root = '/content/drive/My Drive'
 exalearn_root = '/home/jorgemarpa/data/imgs'
+gradient_root = '../datasets/eod_imgs/'
 
 
 class MyRotationTransform:
@@ -53,7 +53,7 @@ class MyNormTransform:
     def __call__(self, x):
         return (x - self.mean) / self.std
 
-    
+
 
 # load pkl synthetic light-curve files to numpy array
 class ProtoPlanetaryDisks(Dataset):
@@ -61,7 +61,7 @@ class ProtoPlanetaryDisks(Dataset):
     Dataset class that loads synthetic images of Protoplanetary disks,
     the dataset has shape [N, C, H, W] = [36518, 1, 187, 187]
     ...
-    
+
     Attributes
     ----------
     imgs        : array
@@ -70,7 +70,7 @@ class ProtoPlanetaryDisks(Dataset):
         array with physical parameters asociated to each image
     meta_names  : list
         list with the names of the physical parameters (8 columns)
-        
+
         m_dust = 'mass of the dust'
         Rc     = 'critical radius when exp drops(size)'
         f_exp  = 'flare exponent'
@@ -79,7 +79,7 @@ class ProtoPlanetaryDisks(Dataset):
         sd_exp = 'surface density exponent'
         alpha  = 'dust stettling'
         inc    = 'inclination'
-        
+
     img_dim     : int
         image dimension, assuming square ratio
     img_channel : int
@@ -88,7 +88,7 @@ class ProtoPlanetaryDisks(Dataset):
         apply rotation and flip transformation
     transform_fx : torchvision transformations
         set of transformations to be applyed when calling an item
-    
+
     Methods
     -------
     __getitem__(self, index)
@@ -119,30 +119,41 @@ class ProtoPlanetaryDisks(Dataset):
             ppd_path = '%s/PPDAE/partitions' % (colab_root)
         elif machine == 'exalearn':
             ppd_path = '%s/PPD/partitions' % (exalearn_root)
+        elif machine == 'gradient':
+            ppd_path = '%s' % (gradient_root)
         else:
             raise('Wrong host, please select local, colab or exalearn')
-            
+
         if subset != '':
             subset = '_%s' % (subset)
-            
+
         self.par_train = np.load('%s/param_arr_gridandfiller%s_train_all.npy' %
                                  (ppd_path, subset))
-        
-        self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%snorm%s_train_*.npy' %
-                                           (ppd_path, image_norm, subset)))
+
+        if image_norm = 'None':
+            self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%s_train_*.npy' %
+                                               (ppd_path, subset)))
+        else:
+            self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%snorm%s_train_*.npy' %
+                                               (ppd_path, image_norm, subset)))
+
         self.imgs_memmaps = [np.load(path, mmap_mode='r') for path in self.imgs_paths]
         self.start_indices = [0] * len(self.imgs_paths)
         self.data_count = 0
         for index, memmap in enumerate(self.imgs_memmaps):
             self.start_indices[index] = self.data_count
             self.data_count += memmap.shape[0]
-        
-        
+
+
         self.par_names = ['m_dust', 'Rc', 'f_exp', 'H0',
                            'Rin', 'sd_exp', 'alpha', 'inc']
-        self.par_test = np.load('%s/param_arr_gridandfiller%s_test.npy' % 
+        self.par_test = np.load('%s/param_arr_gridandfiller%s_test.npy' %
                                 (ppd_path, subset))
-        self.imgs_test = np.load('%s/img_array_gridandfiller_%snorm%s_test.npy' % 
+        if image_norm = 'None':
+            self.imgs_test = np.load('%s/img_array_gridandfiller_%s_test.npy' %
+                                     (ppd_path, subset))
+        else:
+            self.imgs_test = np.load('%s/img_array_gridandfiller_%snorm%s_test.npy' %
                                  (ppd_path, image_norm, subset))
 
         self.img_dim = self.imgs_test[0].shape[-1]
@@ -154,11 +165,11 @@ class ProtoPlanetaryDisks(Dataset):
         self.par_norm = par_norm
         self.MinMaxSc = preprocessing.MinMaxScaler()
         self.MinMaxSc.fit(np.concatenate([self.par_train, self.par_test]))
-        
+
 
     def __len__(self):
         return len(self.par_train) + len(self.par_test)
-    
+
 
     def __getitem__(self, index):
         memmap_index = bisect(self.start_indices, index) - 1
@@ -170,7 +181,7 @@ class ProtoPlanetaryDisks(Dataset):
         if self.par_norm:
             par = self.MinMaxSc.transform(par.reshape(1, -1))[0]
         return np.array(img), par
-    
+
 
     def get_dataloader(self, batch_size=32, shuffle=True,
                        val_split=0.2, random_seed=42):
@@ -185,15 +196,15 @@ class ProtoPlanetaryDisks(Dataset):
             fraction of the dataset to be used as validation sample
         random_seed: int
             initialization of random seed
-        
+
         Returns
         -------
-        train_loader : 
-            dataset loader with training instances 
-        val_loader  : 
-            dataset loader with validation instances 
-        test_loader  : 
-            dataset loader with testing instances 
+        train_loader :
+            dataset loader with training instances
+        val_loader  :
+            dataset loader with validation instances
+        test_loader  :
+            dataset loader with testing instances
         """
         np.random.seed(random_seed)
         if val_split == 0.:

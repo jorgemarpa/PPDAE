@@ -1,7 +1,7 @@
 """AE main training script
 This script allows the user to train an AE model using Protoplanetary disk
 images loaded with the 'dataset.py' class, AE model located in 'ae_model.py' class,
-and the trainig loop coded in 'ae_training.py'. 
+and the trainig loop coded in 'ae_training.py'.
 The script also uses Weight & Biases framework to log metrics, model hyperparameters, configuration parameters, and training figures.
 This file contains the following
 functions:
@@ -36,16 +36,16 @@ parser.add_argument('--dry-run', dest='dry_run', action='store_true',
                     default=False,
                     help='Load data and initialize models [False]')
 parser.add_argument('--machine', dest='machine', type=str, default='local',
-                    help='were to is running (local, colab, [exalearn])')
+                    help='were to is running (local, colab, gradient, [exalearn])')
 
 parser.add_argument('--data', dest='data', type=str, default='PPD',
                     help='data used for training (MNIST, [PPD])')
 parser.add_argument('--img-norm', dest='img_norm', type=str, default='global',
-                    help='type of normalization for images ([global], image)')
+                    help='type of normalization for images ([global], image, None)')
 parser.add_argument('--par-norm', dest='par_norm', type=str, default='T',
                     help='physical parameters are 0-1 scaled ([T],F)')
 parser.add_argument('--subset', dest='subset', type=str, default='',
-                    help='data subset ([],fexp1)')
+                    help='data subset ([],fexp1, 8702022)')
 
 parser.add_argument('--optim', dest='optim', type=str, default='Adam',
                     help='Optimiazer ([Adam], SGD)')
@@ -73,7 +73,7 @@ parser.add_argument('--kernel-size', dest='kernel_size', type=int, default=3,
                     help='2D conv kernel size, encoder [3]')
 parser.add_argument('--conv-blocks', dest='conv_blocks', type=int, default=5,
                     help='conv+actfx+pool blocks [5]')
-parser.add_argument('--model-name', dest='model_name', type=str, 
+parser.add_argument('--model-name', dest='model_name', type=str,
                     default='ConvLinTrans_AE', help='name of model')
 
 parser.add_argument('--comment', dest='comment', type=str, default='',
@@ -108,7 +108,7 @@ def run_code():
         print('Exiting!')
         sys.exit()
     print('Dataset size: ', len(dataset))
-    
+
     # data loaders for training and testing
     train_loader, val_loader, _ = dataset.get_dataloader(batch_size=args.batch_size,
                                                          shuffle=True,
@@ -159,12 +159,12 @@ def run_code():
                                    dropout=args.dropout,
                                    in_ch=dataset.img_channels,
                                    phy_dim=wandb.config.physics_dim)
-        
+
     else:
         print('Wrong Model Name.')
         print('Please select model: ConvLinTrans_AE')
         sys.exit()
-    
+
     # log model architecture and gradients to wandb
     wandb.watch(model, log='gradients')
 
