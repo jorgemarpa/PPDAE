@@ -81,7 +81,7 @@ parser.add_argument('--comment', dest='comment', type=str, default='',
 args = parser.parse_args()
 
 # Initialize W&B project and save user defined flags
-wandb.init(entity="deep_ppd", project="PPD-forward", tags=["forward"])
+wandb.init(entity="deep_ppd", project="PPD-multiwave", tags=["multiwave"])
 wandb.config.update(args)
 wandb.config.rnd_seed = rnd_seed
 
