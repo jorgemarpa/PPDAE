@@ -9,7 +9,7 @@ from bisect import bisect
 from sklearn import preprocessing
 
 root = '/Users/jorgetil/Astro/PPD-AE'
-colab_root = '/content/drive/My Drive'
+colab_root = '/content/drive/MyDrive'
 exalearn_root = '/home/jorgemarpa/data/imgs'
 gradient_root = '../datasets/eod_imgs/'
 
@@ -127,11 +127,11 @@ class ProtoPlanetaryDisks(Dataset):
         if subset != '':
             subset = '_%s' % (subset)
 
-        self.par_train = np.load('%s/param_arr_gridandfiller%s_train_all.npy' %
+        self.par_train = np.load('%s/param_arr_gridandfiller_%s_train_all.npy' %
                                  (ppd_path, subset))
 
         if image_norm == 'None':
-            self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%s_train_*.npy' %
+            self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller%s_train_*.npy' %
                                                (ppd_path, subset)))
         else:
             self.imgs_paths = sorted(glob.glob('%s/img_array_gridandfiller_%snorm%s_train_*.npy' %
@@ -150,7 +150,7 @@ class ProtoPlanetaryDisks(Dataset):
         self.par_test = np.load('%s/param_arr_gridandfiller%s_test.npy' %
                                 (ppd_path, subset))
         if image_norm == 'None':
-            self.imgs_test = np.load('%s/img_array_gridandfiller_%s_test.npy' %
+            self.imgs_test = np.load('%s/img_array_gridandfiller%s_test.npy' %
                                      (ppd_path, subset))
         else:
             self.imgs_test = np.load('%s/img_array_gridandfiller_%snorm%s_test.npy' %
