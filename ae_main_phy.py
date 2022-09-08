@@ -118,6 +118,9 @@ def run_code():
     # print(f"Feature Batch Shape: {trainfeature.size()}")
     # print(f"Label Batch Shape: {trainlabel.size()}")
 
+    print(f'Image dimension {dataset.img_dim}')
+    print(f'Image channels {dataset.img_channels}')
+
     if args.data == 'PPD' and str2bool(args.cond):
         wandb.config.physics_dim = len(dataset.par_names)
     else:
