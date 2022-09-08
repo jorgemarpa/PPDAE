@@ -156,6 +156,15 @@ class ProtoPlanetaryDisks(Dataset):
             self.imgs_test = np.load('%s/img_array_gridandfiller_%snorm%s_test.npy' %
                                  (ppd_path, image_norm, subset))
 
+        # Temporary fix: In case there was an error with image creation where x.shape = [N, W, H]
+        if len(self.imgs_test.shape) == 3:
+            self.imgs_test = self.imgs_test.reshape(
+                (self.imgs_test.shape,
+                 1,
+                 self.imgs_test.shape[0],
+                 self.imgs_test.shape[2])
+            )
+
         self.img_dim = self.imgs_test[0].shape[-1]
         self.img_channels = self.imgs_test[0].shape[0]
         self.transform = transform
