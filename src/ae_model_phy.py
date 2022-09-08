@@ -616,6 +616,8 @@ class ConvLinTrans_AE(nn.Module):
         -------
             latent code
         """
+        print(f'The shape of x = ({x.shape})')
+        print(f'The shape of phy = ({phy.shape if phy is not None else 0})')
         x = self.enc_conv_blocks(x)
         x = x.flatten(1)
         if self.phy_dim > 0 and phy is not None:
