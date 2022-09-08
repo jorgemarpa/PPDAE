@@ -84,7 +84,7 @@ class Trainer():
 
     def _loss(self, x, xhat, train=True, ep=0):
         """Evaluates loss function and add reports to the logger.
-        
+
         Parameters
         ----------
         x      : tensor
@@ -133,8 +133,8 @@ class Trainer():
             img = img.to(self.device)
             phy = phy.to(self.device)
 
-            #xhat, z = self.model(img, phy=phy)
-            xhat, z = self.model(phy)
+            xhat, z = self.model(img, phy=phy)
+            #xhat, z = self.model(phy)
             # calculate loss value
             loss = self._loss(img, xhat, train=True, ep=epoch)
             # calculate the gradients
@@ -193,7 +193,7 @@ class Trainer():
                 #xhat, z = self.model(img, phy=phy)
                 #temp training model
                 xhat, z = self.model(phy)
-                
+
                 # calculate loss value
                 loss = self._loss(img, xhat, train=False, ep=epoch)
 
