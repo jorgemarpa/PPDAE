@@ -114,7 +114,9 @@ def run_code():
                                                          shuffle=True,
                                                          val_split=.2,
                                                          random_seed=rnd_seed)
-    print('Train Loader Shape ', train_loader.shape)
+    trainfeature, trainlabel = next(iter(train_loader))
+    print(f"Feature Batch Shape: {trainfeature.size()}")
+    print(f"Label Batch Shape: {trainlabel.size()}")
 
     if args.data == 'PPD' and str2bool(args.cond):
         wandb.config.physics_dim = len(dataset.par_names)
