@@ -101,7 +101,7 @@ class ProtoPlanetaryDisks(Dataset):
         return a dataloader object for trainning and testing
     """
     def __init__(self, machine='exalearn', transform=True, par_norm=False,
-                 subset='25052021', image_norm='global'):
+                 subset='25052021', image_norm='global', 𝜆='870um'):
         """
         Parameters
         ----------
@@ -112,11 +112,13 @@ class ProtoPlanetaryDisks(Dataset):
         par_norm   : bool, optional
             load parameters that are scaled to [0,1] when True, or raw images
             when False.
+        𝜆 : str
+            which wavelength data to use ([870um], 600nm)
         """
         if machine == 'local':
             ppd_path = '%s/data/PPD/partitions' % (root)
         elif machine == 'colab':
-            ppd_path = '%s/Colab_Notebooks/Research/PPDAE/870_data' % (colab_root)
+            ppd_path = '%s/data/PPDAE/partitions/%s/' % (colab_root, 𝜆)
         elif machine == 'exalearn':
             ppd_path = '%s/PPD/partitions' % (exalearn_root)
         elif machine == 'gradient':
@@ -158,15 +160,15 @@ class ProtoPlanetaryDisks(Dataset):
                                  (ppd_path, image_norm, subset))
 
         # Temporary fix: In case there was an error with image creation where x.shape = [N, W, H]
-        if len(self.imgs_test.shape) == 3:
-            self.imgs_test = self.imgs_test.reshape(
-                (
-                    self.imgs_test.shape[0],
-                    1,
-                    self.imgs_test.shape[1],
-                    self.imgs_test.shape[2],
-                )
-            )
+#         if len(self.imgs_test.shape) == 3:
+#             self.imgs_test = self.imgs_test.reshape(
+#                 (
+#                     self.imgs_test.shape[0],
+#                     1,
+#                     self.imgs_test.shape[1],
+#                     self.imgs_test.shape[2],
+#                 )
+#             )
 
         self.img_dim = self.imgs_test[0].shape[-1]
         self.img_channels = self.imgs_test[0].shape[0]
