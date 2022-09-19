@@ -44,8 +44,10 @@ parser.add_argument('--img-norm', dest='img_norm', type=str, default='global',
                     help='type of normalization for images ([global], image, None)')
 parser.add_argument('--par-norm', dest='par_norm', type=str, default='T',
                     help='physical parameters are 0-1 scaled ([T],F)')
-parser.add_argument('--subset', dest='subset', type=str, default='',
-                    help='data subset ([],fexp1, 8702022)')
+parser.add_argument('--subset', dest='subset', type=str, default='8702022',
+                    help='data subset (fexp1, [8702022])')
+parser.add_argument('--wavelegth', dest='lam', type=str, default='870um',
+                    help='data wavelength ([870um], 600nm)')
 
 parser.add_argument('--optim', dest='optim', type=str, default='Adam',
                     help='Optimiazer ([Adam], SGD)')
@@ -96,7 +98,7 @@ def run_code():
     if args.data == 'PPD':
         dataset = ProtoPlanetaryDisks(machine=args.machine, transform=True,
                                       par_norm=str2bool(args.par_norm),
-                                      subset=args.subset, image_norm=args.img_norm)
+                                      subset=args.subset, image_norm=args.img_norm, 𝜆=args.lam)
     elif args.data == 'MNIST':
         dataset = MNIST(args.machine)
     else:
