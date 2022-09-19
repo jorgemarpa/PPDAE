@@ -118,7 +118,7 @@ class ProtoPlanetaryDisks(Dataset):
         if machine == 'local':
             ppd_path = '%s/data/PPD/partitions' % (root)
         elif machine == 'colab':
-            ppd_path = '%s/data/PPDAE/partitions/%s/' % (colab_root, 𝜆)
+            ppd_path = '%s/data/PPDAE/partitions/%s' % (colab_root, 𝜆)
         elif machine == 'exalearn':
             ppd_path = '%s/PPD/partitions' % (exalearn_root)
         elif machine == 'gradient':
