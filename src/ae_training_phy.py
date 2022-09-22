@@ -190,9 +190,7 @@ class Trainer():
                 # send data to current device
                 img = img.to(self.device)
                 phy = phy.to(self.device)
-                #xhat, z = self.model(img, phy=phy)
-                #temp training model
-                xhat, z = self.model(phy)
+                xhat, z = self.model(img, phy=phy)
 
                 # calculate loss value
                 loss = self._loss(img, xhat, train=False, ep=epoch)
@@ -201,9 +199,6 @@ class Trainer():
                 if i == len(test_loader) - 2:
                     xhat_plot = xhat.data.cpu().numpy()
                     x_plot = img.data.cpu().numpy()
-                #if i == 1:
-                #    print('WARNING: using only 1st batch')
-                #    break
 
         self._report_test(epoch)
 
