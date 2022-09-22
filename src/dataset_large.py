@@ -198,7 +198,7 @@ class ProtoPlanetaryDisks(Dataset):
         if self.par_norm:
             par = self.MinMaxSc.transform(par.reshape(1, -1))[0]
         #print(f'Imgs datatype {img.dtype}\nPar datatype: {par.dtype}')
-        return np.array(img), par.astype('float64')
+        return np.array(img).astype('float32'), par
 
     def get_dataloader(
         self, batch_size=32, shuffle=True, val_split=0.2, random_seed=42
