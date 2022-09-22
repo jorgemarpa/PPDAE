@@ -101,6 +101,7 @@ class ProtoPlanetaryDisks(Dataset):
         par_norm=False,
         subset="25052021",
         image_norm="global",
+        𝜆='870um'
     ):
         """
         Parameters
