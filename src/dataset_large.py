@@ -10,6 +10,7 @@ from sklearn import preprocessing
 root = "/Users/jorgetil/Astro/PPD-AE"
 colab_root = "/content/drive/MyDrive"
 exalearn_root = "/home/jorgemarpa/data/imgs"
+gradient_root = '../datasets/eod_imgs/'
 
 
 class MyRotationTransform:
@@ -111,11 +112,13 @@ class ProtoPlanetaryDisks(Dataset):
         par_norm   : bool, optional
             load parameters that are scaled to [0,1] when True, or raw images
             when False.
+        𝜆 : str
+            which wavelength data to use ([870um], 600nm)
         """
         if machine == "local":
             ppd_path = "%s/data/PPD/partitions" % (root)
         elif machine == "colab":
-            ppd_path = "%s/PPDAE/partitions" % (colab_root)
+            ppd_path = '%s/data/PPDAE/partitions/%s' % (colab_root, 𝜆)
         elif machine == "exalearn":
             ppd_path = "%s/PPD/partitions" % (exalearn_root)
         else:
@@ -158,6 +161,7 @@ class ProtoPlanetaryDisks(Dataset):
             "%s/img_array_gridandfiller_%snorm%s_test.npy"
             % (ppd_path, image_norm, subset)
         )
+        #### Fixed
         if len(self.imgs_test.shape) == 3:
             self.imgs_test = self.imgs_test.reshape(
                 (
