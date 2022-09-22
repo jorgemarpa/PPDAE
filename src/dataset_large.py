@@ -197,7 +197,7 @@ class ProtoPlanetaryDisks(Dataset):
             img = self.transform_fx(img)
         if self.par_norm:
             par = self.MinMaxSc.transform(par.reshape(1, -1))[0]
-        return np.array(img), par
+        return torch.LongTensor(np.array(img)), par
 
     def get_dataloader(
         self, batch_size=32, shuffle=True, val_split=0.2, random_seed=42
