@@ -44,8 +44,8 @@ parser.add_argument('--img-norm', dest='img_norm', type=str, default='global',
                     help='type of normalization for images ([global], image, None)')
 parser.add_argument('--par-norm', dest='par_norm', type=str, default='T',
                     help='physical parameters are 0-1 scaled ([T],F)')
-parser.add_argument('--wavelegth', dest='lam', type=list(), default=['600nm', '870um'],
-                    help='data wavelengths to load. MUST BE A STRING ARRAY (["870um", "600nm"])').
+parser.add_argument('--wavelegth', dest='lam', type=str, action='append', default=[],
+                    help='data wavelengths to load. MUST BE A STRING ARRAY (["600nm", "870um"])')
 
 parser.add_argument('--optim', dest='optim', type=str, default='Adam',
                     help='Optimiazer ([Adam], SGD)')
@@ -94,10 +94,6 @@ def run_code():
         torch.cuda.empty_cache()
     # Load Data #
     if args.data == 'PPD':
-        if type(args.lam) != list():
-         print('Please input the wavelenghts as an array, even if its a single waveleght.')
-         sys.exit()
-         
         dataset = ProtoPlanetaryDisks(machine=args.machine,
                                       transform=True,
                                       par_norm=str2bool(args.par_norm),
