@@ -85,6 +85,81 @@ def plot_recon_wall(xhat, x, epoch=0, log=True):
                  fontsize=20, y=.95)
     fig.canvas.draw()
     return fig
+   
+def plot_multi_recon_wall(xhat, x, epoch=0, log=True):
+    """Light-curves wall plot, function used during VAE training phase.
+    Figure designed and ready to be appended to W&B logger.
+    Parameters
+    ----------
+    xhat : numpy array
+        Array of generated light curves
+    x    : numpy array
+        List of real light curves.
+    epoch: int, optional
+        Epoch number
+    Returns
+    -------
+    fig
+        a matplotlib figure
+    image
+        an image version of the figure
+    """
+
+    plt.close('all')
+    ncols = 8
+    res = x - xhat
+    fig, axis = plt.subplots(nrows=6, ncols=ncols, figsize=(20, 15))
+    
+    for i in range(ncols):
+        v_min = np.min(x[i, 0, :, :])
+        v_max = np.max(x[i, 0, :, :])
+        if log:
+            norm = colors.SymLogNorm(linthresh=.005, linscale=5, 
+                                     vmin=v_min, vmax=v_max, base=10.)
+        else:
+            norm = None
+        
+
+        # Residual
+        axis[0, i].imshow(res[i, 0, :, :],
+                          interpolation='bilinear',
+                          cmap=cm.RdBu, origin='upper', aspect='equal')
+        # 0.6 microns
+        axis[1, i].imshow(xhat[i, 0, :, :], interpolation='bilinear',
+                          cmap=cm.viridis, origin='upper', aspect='equal',
+                          norm=norm)
+        # Original 0.6
+        axis[2, i].imshow(x[i, 0, :, :], interpolation='bilinear',
+                          cmap=cm.viridis, origin='upper', aspect='equal',
+                          norm=norm)
+        # Original 870
+        axis[3, i].imshow(x[i, 1, :, :], interpolation='bilinear',
+                          cmap=cm.viridis, origin='upper', aspect='equal',
+                          norm=norm)
+        #870 microns
+        axis[4, i].imshow(xhat[i, 1, :, :], interpolation='bilinear',
+                          cmap=cm.viridis, origin='upper', aspect='equal',
+                          norm=norm)
+        # residual
+        axis[5, i].imshow(res[i, 1, :, :], interpolation='bilinear',
+                          cmap=cm.RdBu, origin='upper', aspect='equal')
+        
+    # column labels
+    axis[5,0].text(4, 14, s='0.6mu Residual', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[4,0].text(4, 13.5, s='0.6mu Generated', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[3,0].text(4, 13.5, s='0.6mu True', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[2,0].text(4, 13.5, s='870mu True', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[1,0].text(4, 13.5, s='870mu Generated', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[0,0].text(4, 13.5, s='870mu Residual', bbox={'facecolor': 'white', 'pad': 2.0})
+
+    for ax in axis.ravel():
+        ax.axes.get_xaxis().set_visible(False)
+        ax.axes.get_yaxis().set_visible(False)
+    fig.subplots_adjust(wspace=0, hspace=0)
+    fig.suptitle('Reconstruction [Epoch %s]' % epoch,
+                 fontsize=20, y=.95)
+    fig.canvas.draw()
+    return fig
 
 
 def count_parameters(model):
