@@ -1,6 +1,7 @@
 import glob
 import numpy as np
 import torch
+from torch.nn.functional import pad
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 from torch.utils.data.sampler import SubsetRandomSampler
 import torchvision
@@ -10,7 +11,6 @@ from sklearn import preprocessing
 root = "/Users/jorgetil/Astro/PPD-AE"
 colab_root = "/content/drive/MyDrive"
 exalearn_root = "/home/jorgemarpa/data/imgs"
-gradient_root = '../datasets/eod_imgs/'
 
 
 class MyRotationTransform:
@@ -35,6 +35,21 @@ class MyFlipVerticalTransform:
             return np.flip(x, -2).copy()
         else:
             return x
+
+class MyZeroPadding:
+  """Adds zero paddin to images, when needed."""
+  def __init__(self):
+      pass
+      
+  def __call__(self, x):
+    MASTER_DIM = 187
+    dims = x.shape[-1]
+    if (dims < MASTER_DIM):
+      desired_width, desired_heigh = ((MASTER_DIM - x.shape[-1])//2, (MASTER_DIM - x.shape[-1])//2)
+      padding = (desired_width, desired_width, 
+                desired_heigh, desired_heigh)
+      return pad(torch.tensor(x), padding, value=0.0).numpy()
+    else: return x
 
 
 class MyNormTransform:
@@ -96,12 +111,12 @@ class ProtoPlanetaryDisks(Dataset):
 
     def __init__(
         self,
-        machine="exalearn",
+        machine="colab",
         transform=True,
         par_norm=False,
-        subset="25052021",
         image_norm="global",
-        𝜆='870um'
+        nchannels=1,
+        𝜆=['600nm', '870um']
     ):
         """
         Parameters
@@ -113,37 +128,48 @@ class ProtoPlanetaryDisks(Dataset):
         par_norm   : bool, optional
             load parameters that are scaled to [0,1] when True, or raw images
             when False.
-        𝜆 : str
-            which wavelength data to use ([870um], 600nm)
+        nchannels  :  int, optional
+            number of channels to use. If 1 then user must spicify which wavelength
+            to use inside the array.
+        𝜆          : string array, required
+            Specifies which wavelenght to use ([600nm], 870um). Important to extract
+            the right data from the right directory. NOTE: the directory in the first position
+            must be the main directory.
         """
+        MASTER_DIM = 187
         if machine == "local":
             ppd_path = "%s/data/PPD/partitions" % (root)
         elif machine == "colab":
-            ppd_path = '%s/data/PPDAE/partitions/%s' % (colab_root, 𝜆)
+            ppd_path = ['%s/data/PPDAE/partitions/%s' % (colab_root, L) for L in 𝜆]
         elif machine == "exalearn":
             ppd_path = "%s/PPD/partitions" % (exalearn_root)
         else:
             raise ("Wrong host, please select local, colab or exalearn")
 
-        if subset != "":
-            subset = "_%s" % (subset)
-
         self.par_train = np.load(
-            "%s/param_arr_gridandfiller%s_train_all.npy" % (ppd_path, subset)
-        )
+            "%s/param_arr_gridandfiller_train_all.npy" % (ppd_path[0])
+        ) # we assume all batches were split using the same random seed
 
-        self.imgs_paths = sorted(
+        self.imgs_paths = []
+        self.imgs_memmaps = []
+        self.start_indices = []
+        self.data_count = []
+
+        for i in range(nchannels):
+
+          ims = sorted(
             glob.glob(
-                "%s/img_array_gridandfiller_%snorm%s_train_*.npy"
-                % (ppd_path, image_norm, subset)
-            )
-        )
-        self.imgs_memmaps = [np.load(path, mmap_mode="r") for path in self.imgs_paths]
-        self.start_indices = [0] * len(self.imgs_paths)
-        self.data_count = 0
-        for index, memmap in enumerate(self.imgs_memmaps):
-            self.start_indices[index] = self.data_count
-            self.data_count += memmap.shape[0]
+                "%s/img_array_gridandfiller_%snorm_train_*.npy"
+                % (ppd_path[i], image_norm)
+                ))
+          self.imgs_paths.append(ims)
+          self.imgs_memmaps.append([np.load(path, mmap_mode="r") for path in self.imgs_paths[i]])
+          self.start_indices.append([0] * len(self.imgs_paths[i]))
+          self.data_count.append(0)
+        
+          for index, memmap in enumerate(self.imgs_memmaps[i]):
+              self.start_indices[i][index] = self.data_count[i]
+              self.data_count[i] += memmap.shape[0]
 
         self.par_names = [
             "m_dust",
@@ -155,29 +181,29 @@ class ProtoPlanetaryDisks(Dataset):
             "alpha",
             "inc",
         ]
-        self.par_test = np.load(
-            "%s/param_arr_gridandfiller%s_test.npy" % (ppd_path, subset)
-        )
-        self.imgs_test = np.load(
-            "%s/img_array_gridandfiller_%snorm%s_test.npy"
-            % (ppd_path, image_norm, subset)
-        )
-        #### Fixed
-        if len(self.imgs_test.shape) == 3:
-            self.imgs_test = self.imgs_test.reshape(
-                (
-                    self.imgs_test.shape[0],
-                    1,
-                    self.imgs_test.shape[1],
-                    self.imgs_test.shape[2],
-                )
-            )
 
-        self.img_dim = self.imgs_test[0].shape[-1]
-        self.img_channels = self.imgs_test[0].shape[0]
+        self.par_test = np.load(
+              "%s/param_arr_gridandfiller_test.npy" % (ppd_path[0]) 
+          ) # we use master
+        
+        self.imgs_test = []
+
+        for i in range(nchannels):
+          self.imgs_test.append(np.load(
+              "%s/img_array_gridandfiller_%snorm_test.npy"
+              % (ppd_path[i], image_norm)
+          ))
+
+        # after transformation, all images will have the same properties
+        self.img_dim = MASTER_DIM if nchannels > 1 else self.imgs_test[0].shape[-1]
+        self.img_channels = nchannels
         self.transform = transform
+
         self.transform_fx = torchvision.transforms.Compose(
-            [MyRotationTransform(), MyFlipVerticalTransform()]
+            [MyRotationTransform(), 
+             MyFlipVerticalTransform(), 
+             MyZeroPadding()] if nchannels > 1 else [MyRotationTransform(),
+                                                     MyFlipVerticalTransform()]
         )
         self.par_norm = par_norm
         self.MinMaxSc = preprocessing.MinMaxScaler()
@@ -187,18 +213,21 @@ class ProtoPlanetaryDisks(Dataset):
         return len(self.par_train) + len(self.par_test)
 
     def __getitem__(self, index):
-        memmap_index = bisect(self.start_indices, index) - 1
-        index_in_memmap = index - self.start_indices[memmap_index]
-        img = self.imgs_memmaps[memmap_index][index_in_memmap]
-        if len(img.shape) == 2:
-            img = img.reshape((1, img.shape[0], img.shape[1]))
-        par = self.par_train[index]
+      imgs = np.empty([self.img_channels, self.img_dim, self.img_dim])
+      for i in range(self.img_channels):
+        memmap_index = bisect(self.start_indices[i], index) - 1
+        index_in_memmap = index - self.start_indices[i][memmap_index]
+        img = self.imgs_memmaps[i][memmap_index][index_in_memmap]
+
         if self.transform:
             img = self.transform_fx(img)
-        if self.par_norm:
-            par = self.MinMaxSc.transform(par.reshape(1, -1))[0]
-        #print(f'Imgs datatype {img.dtype}\nPar datatype: {par.dtype}')
-        return np.array(img).astype('float32'), par
+        imgs[i] = img[0]
+      
+      par = self.par_train[index]
+      if self.par_norm:
+          par = self.MinMaxSc.transform(par.reshape(1, -1))[0]
+
+      return imgs, par
 
     def get_dataloader(
         self, batch_size=32, shuffle=True, val_split=0.2, random_seed=42
@@ -218,7 +247,7 @@ class ProtoPlanetaryDisks(Dataset):
         -------
         train_loader :
             dataset loader with training instances
-        val_loader  :
+        val_loader  : 
             dataset loader with validation instances
         test_loader  :
             dataset loader with testing instances
