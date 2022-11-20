@@ -2,7 +2,7 @@ import numpy as np
 import datetime
 import torch
 import torch.nn as nn
-from src.utils import plot_recon_wall, plot_latent_space
+from src.utils import plot_recon_wall, plot_multi_recon_wall, plot_latent_space
 from src.training_callbacks import EarlyStopping
 
 
@@ -134,7 +134,6 @@ class Trainer():
             phy = phy.to(self.device)
 
             xhat, z = self.model(img, phy=phy)
-            #xhat, z = self.model(phy)
             # calculate loss value
             loss = self._loss(img, xhat, train=True, ep=epoch)
             # calculate the gradients
@@ -159,7 +158,11 @@ class Trainer():
 
         # plot reconstructed images ever 2 epochs
         if epoch % 2 == 0:
-            wall = plot_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
+            nchnnels = data_loader.img_channels
+            if nchnnels > 1:
+                wall = plot_multi_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
+                
+            else: wall = plot_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
             self.wb.log({'Train_Recon':  self.wb.Image(wall)},
                         step=self.num_steps)
 
@@ -204,7 +207,10 @@ class Trainer():
 
         # plot reconstructed images ever 2 epochs
         if epoch % 2 == 0:
-            wall = plot_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
+            nchnnels = data_loader.img_channels
+            if nchnnels > 1:
+                wall = plot_multi_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
+            else: wall = plot_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
             self.wb.log({'Test_Recon':  self.wb.Image(wall)},
                         step=self.num_steps)
 
