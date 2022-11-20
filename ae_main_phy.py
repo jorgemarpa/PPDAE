@@ -44,10 +44,8 @@ parser.add_argument('--img-norm', dest='img_norm', type=str, default='global',
                     help='type of normalization for images ([global], image, None)')
 parser.add_argument('--par-norm', dest='par_norm', type=str, default='T',
                     help='physical parameters are 0-1 scaled ([T],F)')
-parser.add_argument('--subset', dest='subset', type=str, default='8702022',
-                    help='data subset (fexp1, [8702022])')
-parser.add_argument('--wavelegth', dest='lam', type=str, default='870um',
-                    help='data wavelength ([870um], 600nm)')
+parser.add_argument('--wavelegth', dest='lam', type=list(), default=['600nm', '870um'],
+                    help='data wavelengths to load. MUST BE A STRING ARRAY (["870um", "600nm"])').
 
 parser.add_argument('--optim', dest='optim', type=str, default='Adam',
                     help='Optimiazer ([Adam], SGD)')
@@ -96,9 +94,17 @@ def run_code():
         torch.cuda.empty_cache()
     # Load Data #
     if args.data == 'PPD':
-        dataset = ProtoPlanetaryDisks(machine=args.machine, transform=True,
+        if type(args.lam) != list():
+         print('Please input the wavelenghts as an array, even if its a single waveleght.')
+         sys.exit()
+         
+        dataset = ProtoPlanetaryDisks(machine=args.machine,
+                                      transform=True,
                                       par_norm=str2bool(args.par_norm),
-                                      subset=args.subset, image_norm=args.img_norm, 𝜆=args.lam)
+                                      image_norm=args.img_norm,
+                                      nchannels=len(args.lam),
+                                      𝜆=args.lam
+                                     )
     elif args.data == 'MNIST':
         dataset = MNIST(args.machine)
     else:
@@ -162,11 +168,6 @@ def run_code():
                                    n_conv_blocks=args.conv_blocks,
                                    phy_dim=wandb.config.physics_dim,
                                    feed_phy=str2bool(args.feed_phy))
-    elif args.model_name == 'Forward_AE':
-        model = Forward_AE(img_dim=dataset.img_dim,
-                                   dropout=args.dropout,
-                                   in_ch=dataset.img_channels,
-                                   phy_dim=wandb.config.physics_dim)
 
     else:
         print('Wrong Model Name.')
