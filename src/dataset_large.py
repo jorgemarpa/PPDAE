@@ -186,13 +186,24 @@ class ProtoPlanetaryDisks(Dataset):
               "%s/param_arr_gridandfiller_test.npy" % (ppd_path[0]) 
           ) # we use master
         
-        self.imgs_test = []
-
-        for i in range(nchannels):
-          self.imgs_test.append(np.load(
+        if nchannels == 1:
+          self.imgs_test = np.load(
               "%s/img_array_gridandfiller_%snorm_test.npy"
-              % (ppd_path[i], image_norm)
-          ))
+              % (ppd_path[0], image_norm)
+          )
+        else:
+          self.imgs_test = np.empty([len(self.par_test), nchannels, MASTER_DIM, MASTER_DIM])
+
+          for i in range(nchannels):
+            im = np.load(
+                "%s/img_array_gridandfiller_%snorm_test.npy"
+                % (ppd_path[i], image_norm)
+            )
+
+            if im.shape[-1] < MASTER_DIM:
+              mzp = MyZeroPadding()
+              im = mzp(im)
+            self.imgs_test[:, i] = im[:len(self.par_test), 0, :, :] # temp, remove len(self.par_test) after data matches
 
         # after transformation, all images will have the same properties
         self.img_dim = MASTER_DIM if nchannels > 1 else self.imgs_test[0].shape[-1]
