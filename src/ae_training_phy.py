@@ -158,7 +158,7 @@ class Trainer():
 
         # plot reconstructed images ever 2 epochs
         if epoch % 2 == 0:
-            nchnnels = data_loader.img_channels
+            nchnnels = xhat_plot.shape[1]
             if nchnnels > 1:
                 wall = plot_multi_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
                 
@@ -207,7 +207,7 @@ class Trainer():
 
         # plot reconstructed images ever 2 epochs
         if epoch % 2 == 0:
-            nchnnels = data_loader.img_channels
+            nchnnels = xhat_plot.shape[1]
             if nchnnels > 1:
                 wall = plot_multi_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
             else: wall = plot_recon_wall(xhat_plot, x_plot, epoch=epoch, log=True)
