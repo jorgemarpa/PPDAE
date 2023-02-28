@@ -212,9 +212,9 @@ class ProtoPlanetaryDisks(Dataset):
 
         self.transform_fx = torchvision.transforms.Compose(
             [MyRotationTransform(), 
-             MyFlipVerticalTransform(), 
-             MyZeroPadding()] if nchannels > 1 else [MyRotationTransform(),
-                                                     MyFlipVerticalTransform()]
+             MyFlipVerticalTransform()]#, 
+#              MyZeroPadding()] if nchannels > 1 else [MyRotationTransform(),
+#                                                      MyFlipVerticalTransform()]
         )
         self.par_norm = par_norm
         self.MinMaxSc = preprocessing.MinMaxScaler()
@@ -229,6 +229,9 @@ class ProtoPlanetaryDisks(Dataset):
         memmap_index = bisect(self.start_indices[i], index) - 1
         index_in_memmap = index - self.start_indices[i][memmap_index]
         img = self.imgs_memmaps[i][memmap_index][index_in_memmap]
+        if self.img_channels > 1 and img.shape[-1] < self.img_dim:
+            mmzp = MyZeroPadding()
+            img = mzp(img)
         imgs[i] = img[0]
        
       if self.transform:
