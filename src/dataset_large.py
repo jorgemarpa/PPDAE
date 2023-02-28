@@ -229,10 +229,10 @@ class ProtoPlanetaryDisks(Dataset):
         memmap_index = bisect(self.start_indices[i], index) - 1
         index_in_memmap = index - self.start_indices[i][memmap_index]
         img = self.imgs_memmaps[i][memmap_index][index_in_memmap]
-
-        if self.transform:
-            img = self.transform_fx(img)
         imgs[i] = img[0]
+       
+      if self.transform:
+            imgs = self.transform_fx(imgs)
       
       par = self.par_train[index]
       if self.par_norm:
