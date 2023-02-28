@@ -230,7 +230,7 @@ class ProtoPlanetaryDisks(Dataset):
         index_in_memmap = index - self.start_indices[i][memmap_index]
         img = self.imgs_memmaps[i][memmap_index][index_in_memmap]
         if self.img_channels > 1 and img.shape[-1] < self.img_dim:
-            mmzp = MyZeroPadding()
+            mzp = MyZeroPadding()
             img = mzp(img)
         imgs[i] = img[0]
        
