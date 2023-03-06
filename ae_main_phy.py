@@ -81,7 +81,7 @@ parser.add_argument('--comment', dest='comment', type=str, default='',
 args = parser.parse_args()
 
 # Initialize W&B project and save user defined flags
-wandb.init(entity="deep_ppd", project="PPD-multiwave", tags=["multiwave"])
+run = wandb.init(entity="deep_ppd", project="PPD-multiwave", tags=["multiwave"])
 wandb.config.update(args)
 wandb.config.rnd_seed = rnd_seed
 
@@ -235,6 +235,8 @@ def run_code():
     # run training/testing iterations
     trainer.train(train_loader, val_loader, args.num_epochs,
                   save=True, early_stop=args.early_stop)
+   
+    run.finish()
 
 
 if __name__ == "__main__":
