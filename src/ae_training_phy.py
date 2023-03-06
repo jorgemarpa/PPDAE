@@ -275,6 +275,12 @@ class Trainer():
                 if early_stopping.early_stop:
                     print("Early stopping")
                     break
+            # checkpoint save
+            if epoch % 2 == 0:
+                torch.save(self.model.state_dict(), '%s/checkpoint/ckpt_model.pt' %
+                       (self.wb.run.dir))
+                self.wb.save('%s/checkpoint/ckpt_model.pt' % (self.wb.run.dir))
+             
 
         if save:
             torch.save(self.model.state_dict(), '%s/model.pt' %
