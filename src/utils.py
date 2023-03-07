@@ -145,12 +145,12 @@ def plot_multi_recon_wall(xhat, x, epoch=0, log=True):
                           cmap=cm.RdBu, origin='upper', aspect='equal')
         
     # column labels
-    axis[5,0].text(4, 14, s='0.6mu Residual', bbox={'facecolor': 'white', 'pad': 2.0})
-    axis[4,0].text(4, 13.5, s='0.6mu Generated', bbox={'facecolor': 'white', 'pad': 2.0})
-    axis[3,0].text(4, 13.5, s='0.6mu True', bbox={'facecolor': 'white', 'pad': 2.0})
-    axis[2,0].text(4, 13.5, s='870mu True', bbox={'facecolor': 'white', 'pad': 2.0})
-    axis[1,0].text(4, 13.5, s='870mu Generated', bbox={'facecolor': 'white', 'pad': 2.0})
-    axis[0,0].text(4, 13.5, s='870mu Residual', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[0,0].text(4, 14.0, s='600nm Residual', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[1,0].text(4, 13.5, s='600nm Generated', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[2,0].text(4, 13.5, s='600nm True', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[3,0].text(4, 13.5, s='870mu True', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[4,0].text(4, 13.5, s='870mu Generated', bbox={'facecolor': 'white', 'pad': 2.0})
+    axis[5,0].text(4, 13.5, s='870mu Residual', bbox={'facecolor': 'white', 'pad': 2.0})
 
     for ax in axis.ravel():
         ax.axes.get_xaxis().set_visible(False)
