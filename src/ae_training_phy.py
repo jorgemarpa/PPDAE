@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from src.utils import plot_recon_wall, plot_multi_recon_wall, plot_latent_space
 from src.training_callbacks import EarlyStopping
-import os
+# import os
 
 
 class Trainer():
@@ -237,9 +237,9 @@ class Trainer():
         Returns
         -------
         """
-        CKPTDIR = self.wb.run.dir + '/checkpoint'
-        if not os.path.exists(CKPTDIR):
-            os.makedirs(CKPTDIR)
+#         CKPTDIR = self.wb.run.dir + '/checkpoint'
+#         if not os.path.exists(CKPTDIR):
+#             os.makedirs(CKPTDIR)
         # hold samples, real and generated, for initial plotting
         if early_stop:
             early_stopping = EarlyStopping(patience=10, min_delta=.1,
@@ -280,8 +280,8 @@ class Trainer():
                     break
             # checkpoint save
             if epoch % 2 == 0:
-                torch.save(self.model.state_dict(), '%s/ckpt_model.pt' % (CKPTDIR))
-                self.wb.save('%s/ckpt_model.pt' % (CKPTDIR), base_path=CKPTDIR)
+                torch.save(self.model.state_dict(), '%s/ckpt_model.pt' % (self.wb.run.dir))
+                self.wb.save('%s/ckpt_model.pt' % (self.wb.run.dir))#, base_path=CKPTDIR)
              
 
         if save:
