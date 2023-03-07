@@ -281,7 +281,7 @@ class Trainer():
             # checkpoint save
             if epoch % 2 == 0:
                 torch.save(self.model.state_dict(), '%s/ckpt_model.pt' % (CKPTDIR))
-                self.wb.save('%s/ckpt_model.pt' % (CKPTDIR))
+                self.wb.save('%s/ckpt_model.pt' % (CKPTDIR), base_path=CKPTDIR)
              
 
         if save:
