@@ -147,8 +147,8 @@ class ProtoPlanetaryDisks(Dataset):
             raise ("Wrong host, please select local, colab or exalearn")
 
         self.par_train = np.load(
-            "%s/param_arr_gridandfiller_train_all.npy" % (ppd_path[0])
-        ) # we assume all batches were split using the same random seed
+            '%s/data/PPDAE/partitions/phyparams/param_arr_gridandfiller_train_all.npy' % (colab_root)
+        )
 
         self.imgs_paths = []
         self.imgs_memmaps = []
@@ -183,8 +183,8 @@ class ProtoPlanetaryDisks(Dataset):
         ]
 
         self.par_test = np.load(
-              "%s/param_arr_gridandfiller_test.npy" % (ppd_path[0]) 
-          ) # we use master
+             '%s/data/PPDAE/partitions/phyparams/param_arr_gridandfiller_test.npy' % (colab_root)
+          )
         
         if nchannels == 1:
           self.imgs_test = np.load(
